@@ -29,4 +29,6 @@ Route::get('check/{code}', [CodeController::class, 'mobileCheck']);
 Route::post('tesmongo', [CodeController::class, 'tesmongo']);
 Route::post('login', [UserController::class, 'login']);
 Route::post('claim/{code}', [ProductController::class, 'claimProduct']);
+Route::get('/categories', [ProductController::class, 'getCategories']);
+Route::get('/categories/{categoryId}/products', [ProductController::class, 'getProductsByCategory']);
 Route::post('updatep', [UserController::class, 'updateProfile']);

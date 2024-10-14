@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Database;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
@@ -139,6 +141,23 @@ class UserController extends Controller
                 }
 
                 $user_->save();
+
+                // Create a Firebase factory using the service account JSON
+                $serviceAccount = storage_path('app/AG.json');
+                $firebasedb = (new Factory)
+                ->withServiceAccount($serviceAccount)
+                ->createDatabase();
+
+                $firebaseData = [
+                    'username' => $request->has('username') ? $request->username : $user_->username,
+                    'name' => $request->has('name') ? $request->name : $user_->name,
+                    'dateOfBirth' => $request->has('dateOfBirth') ? $request->dateOfBirth : $user_->dateOfBirth,
+                    'address' => $request->has('address') ? $request->address : $user_->address,
+                    'phone' => $request->has('phone') ? $request->phone : $user_->phone,
+                ];
+
+                $firebasedb->getReference('user/' . $userid)
+                ->update($firebaseData);
 
                 return response()->json(['status' => 'success', 'message' => 'User updated']);
             }

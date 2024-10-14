@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Firebase\VerifyController as verify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\ClaimProduct as Claim;
+use App\Models\ProductCategories;
 use App\Models\Code;
 
 class ProductController extends Controller
@@ -16,17 +17,24 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function getCategories()
     {
-        //
+        $categories = ProductCategories::all();
+        return response()->json($categories);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function getProductsByCategory($categoryId)
     {
-        //
+        $category = ProductCategories::with('products')->find($categoryId);
+
+        if (!$category) {
+            return response()->json(['error' => 'Category not found'], 404);
+        }
+
+        return response()->json($category->products);
     }
 
     /**
