@@ -86,4 +86,64 @@ class UserController extends Controller
             return response()->json(['message' => 'Failed to send email', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function updateProfile(Request $request){
+        try{
+            if ($request){
+                $token = $request->token;
+                if (!$token){
+                    return response()->json(['status'=>'error', 'message'=>'Token is required'], 402);
+                }
+
+                $user = verify::decodeJson($token, '003');
+                \Log::info('Decoded user:', (array) $user);
+
+                $userid = $user->user_id;
+
+                $validator = Validator::make($request->all(), [
+                    'username' => 'sometimes|string',
+                    'name' => 'sometimes|string',
+                    'dateOfBirth' => 'sometimes|date_format:Y-m-d',
+                    'address' => 'sometimes|string',
+                    'phone' => 'sometimes|string',
+                ]);
+
+                if ($validator->fails()){
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Please, complete your profile',
+                        'error' => $validator->errors(),
+                    ], 402);
+                }
+
+                $user_ = User::where('email', $user->email)->first();
+
+                if (!$user_) {
+                    return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
+                }
+
+                if ($request->has('username')) {
+                    $user_->username = $request->username;
+                }
+                if ($request->has('name')) {
+                    $user_->name = $request->name;
+                }
+                if ($request->has('dateOfBirth')) {
+                    $user_->dateOfBirth = $request->dateOfBirth;
+                }
+                if ($request->has('address')) {
+                    $user_->address = $request->address;
+                }
+                if ($request->has('phone')) {
+                    $user_->phone = $request->phone;
+                }
+
+                $user_->save();
+
+                return response()->json(['status' => 'success', 'message' => 'User updated']);
+            }
+        }catch(Exception $e){
+            return response()->json(['status' => 'error', 'message'=>'User not updated']);
+        }
+    }
 }
