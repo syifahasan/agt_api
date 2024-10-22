@@ -48,9 +48,72 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function myProduct(Request $request)
     {
-        //
+        try{
+            if (!isset($request->appid) || $request->appid === null || trim($request->appid == " ")) {
+                return response()->json(['status' => 'Error_appid', 'message' => "Access Denied!!"]);
+            }
+            if (!isset($request->token) || $request->token === null || trim($request->token == " ")) {
+                return response()->json(['status' => 'Error_token', 'message' => "Access Denied!!"]);
+            }
+            $user_ = verify::decodeJson($request->token, $request->appid);
+            if (!is_object($user_)) {
+                return response()->json(['status' => "error", 'message' => "Token Expired"]);
+            }
+            $user = \App\Core\Library::getUser($user_->email);
+            if (!$user) {
+                return response()->json(['status' => 'error', 'message' => 'Your Email Not Exist']);
+            }
+
+            $perPage = $request->row ?? 5; // Items per page
+            $currentPage = $request->page ?? 1; // Current page
+
+            $row = 5;
+            $columns = array(
+                'history',
+                'id',
+                'additional.photo',
+                'time',
+                'approved',
+                'product',
+                'code'
+            );
+
+            $pageName = "My Product";
+            $page = 1;
+
+            if ($request) {
+                $row = $request->row;
+                $pageName = $request->pageName;
+                $page = $request->page;
+            }
+
+            $myProduct = \App\Core\Library::CheckClaimedProd($user->id, null, null, $perPage, $currentPage);
+
+            if (!$myProduct) {
+                return response()->json(['status' => 'error', 'message' => 'No products found']);
+            }
+
+            foreach ($myProduct as $key => $value) {
+                switch ($value->approved) {
+                    case 1:
+                        $value->statusClaim = 'claimed';
+                        break;
+                    case 2:
+                        $value->statusClaim = 'sold';
+                        break;
+                    default:
+                        $value->statusClaim = 'on review';
+                        break;
+                }
+            }
+
+            return response()->json(['status' => 'success', 'result' => $myProduct]);
+
+        }catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'failed get your products', 'error' => $e->getMessage()]);
+        }
     }
 
     /**

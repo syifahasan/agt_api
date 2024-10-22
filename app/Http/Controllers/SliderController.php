@@ -31,7 +31,7 @@ class SliderController extends Controller
                 $page = $request->page;
             }
 
-            $slider = Cache::remember('sliderimage_003'.$row, 24*60, function () use ($row, $columns) {
+            $slider = Cache::remember('sliderimage_003'.$row, 24*60, function () use ($row, $columns, $pageName, $page) {
                 return Slider::where('client', null)
                                 ->orderBy('order', 'asc')
                                 ->where('active', 1)
@@ -41,7 +41,7 @@ class SliderController extends Controller
         } catch (Exception $e){
             return response()->json(['status' => 'error', 'message' => 'failed get slider']);
         }
-        $pathImg = asset('storage').'/';
+        $pathImg = 'admin.authenticguards.com/storage/';
             $extns = ".jpg";
         return response()->json(['status' => 'success', 'result' => $slider,'pathImg'=>$pathImg,'extensn'=>$extns]);
     }

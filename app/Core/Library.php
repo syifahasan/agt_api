@@ -59,6 +59,39 @@ class Library{
         }
     }
 
+    public static function CheckClaimedProd($userId = null,$codeid = null,$client = null, $perPage = 5, $currentPage = 1) {
+        try {
+
+            $isclient = $client ? $client : '003';
+
+            $skip = ($currentPage - 1) * $perPage;
+
+            $data = DB::connection('mongodb')->table('agclaim')
+                            // ->where('user.user_id', (int)$userId)
+                            ->where('user.user_id', (int)$userId)
+                            ->skip($skip)
+                            ->limit($perPage)
+                            ->get();
+
+            // Log the result of the query
+            Log::info('Query result: ', ['result' => $data]);
+
+            if ($data->isNotEmpty()) {
+                return $data;
+            }else {
+                Log::info('No claim found for userId: ' . $userId . ' and client: ' . $client);
+                return null;
+            }
+
+                //});
+                //return $data;
+
+        } catch (Exception $ex) {
+            Log::error('Error in CheckClaim method: ' . $ex->getMessage());
+            return false;
+        }
+    }
+
     public static function getUser($email) {
         if(empty($email)) {
             return false;

@@ -146,7 +146,7 @@ class CodeController extends Controller
                     $pesan = "Product is Protected by AG, and Product is claimed by other";
                     $status = "success";
                     $status_ = "Claimed";
-                    $agUserId = $check['user']['id'];
+                    $agUserId = $check['user']['user_id'];
                     $appid = Appid::where('appid', $request->appid)->first();
                 }
                 $data = array(
@@ -175,7 +175,7 @@ class CodeController extends Controller
                 $status_ = 'Available';
                 if(count($check['product']) > 0){
                     $check['brand'] = $check['order']['brand'];
-                    $check['user']['id'] = 0;
+                    $check['user']['user_id'] = 0;
                     $data = array(
                         'agProductClient_id' => $check['product']['id'],
                         'agCodes_id' => $codes,
@@ -190,7 +190,7 @@ class CodeController extends Controller
                 }
             }
             // $check["kta"] = $this->KTA($codes); //find($codes)??'';
-            $check['pathImg'] = asset('product') . '/';
+            $check['pathImg'] = 'admin.authenticguards.com/product/';
             $check['brand_name'] = isset($check['order']['brand']['Name']) ? $check['order']['brand']['Name'] : "";
             $check['client'] = isset($check['order']['brand']['client']) ? $check['order']['brand']['client'] : "";
             $check['client_name'] = isset($check['client']['name']) ? $check['client']['name'] : "";
