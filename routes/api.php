@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\CodeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\SliderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,3 +34,5 @@ Route::post('claim/{code}', [ProductController::class, 'claimProduct']);
 Route::get('/categories', [ProductController::class, 'getCategories']);
 Route::get('/categories/{categoryId}/products', [ProductController::class, 'getProductsByCategory']);
 Route::post('updatep', [UserController::class, 'updateProfile']);
+Route::get('wallet/point', '\App\Http\Controllers\WalletController@getWallet');
+Route::resource('slider', '\App\Http\Controllers\SliderController');
